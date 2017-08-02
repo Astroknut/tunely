@@ -97,6 +97,15 @@ app.post('/api/albums', function album_index(req,res){
   });
 });
 
+
+app.post('/api/albums/:id/songs', function album_index(req,res) {
+  db.Album.findOne({_id: req.params.id}, function(err,album){
+    album.songs.push(req.body);
+    album.save();
+    res.json(album);
+  });
+});
+
 /**********
  * SERVER *
  **********/

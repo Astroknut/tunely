@@ -47,6 +47,50 @@ $(document).ready(function() {
     });
     });
 
+  var id;
+  $('#albums').on('click', '.add-song', function(e) {
+    console.log('You clicked a button yo');
+    var id = $(this).parents('.album').data('album-id');
+    console.log('id', id);
+    $('#songModal').data('album-id', id).modal();
+  });
+
+  $('#saveSong').on('click', handleNewSongSubmit);
+
+  function handleNewSongSubmit(e){
+    e.preventDefault();
+    //Get data from modal fields
+    newName = $('#songName').val();
+    newTrack = parseInt($('#trackNumber').val());
+    // console.log(newName);
+    // console.log(newTrack);
+    //POST to server
+    var id = $('#songModal').data('album-id');
+    $.ajax({
+      method: "POST",
+      url: 'http://localhost:3000/api/albums/' + id + '/songs',
+      dataType: 'json',
+      data: {
+        name: newName,
+        trackNumber: newTrack
+      }
+    });
+
+  //Closes and resets modal input fields on submit
+    $('#songModal').modal('hide');
+    $('#songModal').on('hidden.bs.modal', function(){
+      $(this).find('input').val('').end();
+    });
+    //Refresh page to add new song w/o relocating album div
+    window.location.reload();
+  }
+  
+
+  //Clears modal inputs on close
+  $('#songModal').on('hidden.bs.modal', function() {
+    $(this).find('input').val('').end();
+  });
+
  
   //creates object from form input
   newAlbum = $('form').submit(function(event){
@@ -62,9 +106,9 @@ $(document).ready(function() {
       dataType: "json",
       data: formData,
           });
-
     });
 });
+
 
 var songsHtml;
 function buildSongsHtml(songs){
@@ -84,7 +128,7 @@ function renderAlbum(album) {
 
   var albumHtml =
   "        <!-- one album -->" +
-  "        <div class='row album' data-album-id='album._id'" + "HARDCODED ALBUM ID" + "'>" +
+  "        <div class='row album' data-album-id='" + album._id + "'>" +
   "          <div class='col-md-10 col-md-offset-1'>" +
   "            <div class='panel panel-default'>" +
   "              <div class='panel-body'>" +
@@ -119,6 +163,7 @@ function renderAlbum(album) {
   "              </div>" + // end of panel-body
 
   "              <div class='panel-footer'>" +
+  "                 <button class='btn btn-primary add-song'>Add Song</button>" +
   "              </div>" +
 
   "            </div>" +
